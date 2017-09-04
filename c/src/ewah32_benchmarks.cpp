@@ -10,7 +10,9 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#include "benchmark.h"
+#include <inttypes.h>
+#include <stdio.h>
+#include <sys/time.h>
 #include "numbersfromtextfiles.h"
 #ifdef __cplusplus
 }
@@ -50,7 +52,6 @@ int main(int argc, char **argv) {
     int c;
     const char *extension = ".txt";
     bool verbose = false;
-    uint64_t data[13];
     while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
         case 'e':
             extension = optarg;
@@ -98,54 +99,38 @@ int main(int argc, char **argv) {
        successivecard += howmany[i-1] + howmany[i];
     }
 
-
-    uint64_t cycles_start = 0, cycles_final = 0;
-
-    RDTSC_START(cycles_start);
     std::vector<EWAHBoolArray<uint32_t> > bitmaps = create_all_bitmaps(howmany, numbers, count);
-    RDTSC_FINAL(cycles_final);
     if (bitmaps.empty()) return -1;
-    if(verbose) printf("Loaded %d bitmaps from directory %s \n", (int)count, dirname);
     uint64_t totalsize = 0;
 
     for (int i = 0; i < (int) count; ++i) {
         EWAHBoolArray<uint32_t> & bv = bitmaps[i];
         totalsize += bv.sizeInBytes(); // should be close enough to memory usage
     }
-    data[0] = totalsize;
-
-    if(verbose) printf("Total size in bytes =  %" PRIu64 " \n", totalsize);
-
-    uint64_t successive_and = 0;
-    uint64_t successive_or = 0;
-    uint64_t total_or = 0;
-    uint64_t total_count = 0;
-    uint64_t successive_andnot = 0;
-    uint64_t successive_xor = 0;
-
-
-    RDTSC_START(cycles_start);
+    struct timeval st, et;
+    int elapsed;
+    gettimeofday(&st,NULL);
     for (int i = 0; i < (int)count - 1; ++i) {
         EWAHBoolArray<uint32_t>  tempand;
         bitmaps[i].logicaland(bitmaps[i + 1],tempand);
         successive_and += tempand.numberOfOnes();
     }
-    RDTSC_FINAL(cycles_final);
-    data[1] = cycles_final - cycles_start;
-    if(verbose) printf("Successive intersections on %zu bitmaps took %" PRIu64 " cycles\n", count,
-                           cycles_final - cycles_start);
+    gettimeofday(&et,NULL);
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    printf("Successive intersections took %d mus\n", elapsed);
 
-    RDTSC_START(cycles_start);
+    gettimeofday(&st,NULL);
     for (int i = 0; i < (int)count - 1; ++i) {
         EWAHBoolArray<uint32_t>  tempor;
         bitmaps[i].logicalor(bitmaps[i + 1],tempor);
         successive_or += tempor.numberOfOnes();
     }
-    RDTSC_FINAL(cycles_final);
-    data[2] = cycles_final - cycles_start;
-    if(verbose) printf("Successive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
-                           cycles_final - cycles_start);
-    RDTSC_START(cycles_start);
+    gettimeofday(&et,NULL);
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+
+    printf("Successive unions took %d mus\n", elapsed);
+
+    gettimeofday(&st,NULL);
     if(count>1) {
         EWAHBoolArray<uint32_t>  totalorbitmap;
         bitmaps[0].logicalor(bitmaps[1],totalorbitmap);
@@ -156,147 +141,10 @@ int main(int argc, char **argv) {
         }
         total_or = totalorbitmap.numberOfOnes();
     }
-    RDTSC_FINAL(cycles_final);
-    data[3] = cycles_final - cycles_start;
-    if(verbose) printf("Total naive unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
-                           cycles_final - cycles_start);
+    gettimeofday(&et,NULL);
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    printf("Total unions took %d mus\n", elapsed);
 
-    RDTSC_START(cycles_start);
-    if(count>1) {
-        EWAHBoolArray<uint32_t>  totalorbitmap;
-        const EWAHBoolArray<uint32_t>  ** allofthem = new const EWAHBoolArray<uint32_t>* [count];
-        for(int i = 0 ; i < (int) count; ++i) allofthem[i] = & bitmaps[i];
-        fast_logicalor_tocontainer<uint32_t>(count, allofthem,totalorbitmap);
-        total_or = totalorbitmap.numberOfOnes();
-        delete[] allofthem;
-    }
-    RDTSC_FINAL(cycles_final);
-    data[4] = cycles_final - cycles_start;
-    if(verbose) printf("Total heap unions on %zu bitmaps took %" PRIu64 " cycles\n", count,
-                           cycles_final - cycles_start);
-
-    uint64_t quartcount;
-    STARTBEST(quartile_test_repetitions)
-    quartcount = 0;
-    for (size_t i = 0; i < count ; ++i) {
-      quartcount += bitmaps[i].get(maxvalue/4);
-      quartcount += bitmaps[i].get(maxvalue/2);
-      quartcount += bitmaps[i].get(3*maxvalue/4);
-    }
-    ENDBEST(data[5])
-
-    if(verbose) printf("Quartile queries on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           data[5]);
-
-    RDTSC_START(cycles_start);
-    for (int i = 0; i < (int)count - 1; ++i) {
-        EWAHBoolArray<uint32_t>  tempandnot;
-        bitmaps[i].logicalandnot(bitmaps[i + 1],tempandnot);
-        successive_andnot += tempandnot.numberOfOnes();
-    }
-    RDTSC_FINAL(cycles_final);
-    data[6] = cycles_final - cycles_start;
-
-    if(verbose) printf("Successive differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
-
-    RDTSC_START(cycles_start);
-    for (int i = 0; i < (int)count - 1; ++i) {
-        EWAHBoolArray<uint32_t>  tempxor;
-        bitmaps[i].logicalxor(bitmaps[i + 1],tempxor);
-        successive_xor += tempxor.numberOfOnes();
-    }
-    RDTSC_FINAL(cycles_final);
-    data[7] = cycles_final - cycles_start;
-
-    if(verbose) printf("Successive symmetric differences on %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
-
-    RDTSC_START(cycles_start);
-    for (size_t i = 0; i < count; ++i) {
-        EWAHBoolArray<uint32_t> & b = bitmaps[i];
-        for (auto j = b.begin(); j != b.end(); ++j) {
-            total_count++;
-        }
-    }
-    RDTSC_FINAL(cycles_final);
-    data[8] = cycles_final - cycles_start;
-    assert(total_count == totalcard);
-
-    if(verbose) printf("Iterating over %zu bitmaps took %" PRIu64 " cycles\n", count,
-           cycles_final - cycles_start);
-
-    if(verbose) printf("Collected stats  %" PRIu64 "  %" PRIu64 "  %" PRIu64 " %" PRIu64 "\n",successive_and,successive_or,total_or,quartcount);
-
-    assert(successive_xor + successive_and == successive_or);
-
-    /**
-    * and, or, andnot and xor cardinality
-    */
-    uint64_t successive_andcard = 0;
-    uint64_t successive_orcard = 0;
-    uint64_t successive_andnotcard = 0;
-    uint64_t successive_xorcard = 0;
-    
-    for (int i = 0; i < (int)count - 1; ++i) {
-        assert(bitmaps[i].logicalandcount(bitmaps[i + 1]) == bitmaps[i].logicaland(bitmaps[i + 1]).numberOfOnes());
-        assert(bitmaps[i].logicalorcount(bitmaps[i + 1]) == bitmaps[i].logicalor(bitmaps[i + 1]).numberOfOnes());
-        assert(bitmaps[i].logicalxorcount(bitmaps[i + 1]) == bitmaps[i].logicalxor(bitmaps[i + 1]).numberOfOnes());
-        assert(bitmaps[i].logicalandnotcount(bitmaps[i + 1]) == bitmaps[i].logicalandnot(bitmaps[i + 1]).numberOfOnes());
-    }
-
-    RDTSC_START(cycles_start);
-    for (int i = 0; i < (int)count - 1; ++i) {
-        successive_andcard += bitmaps[i].logicalandcount(bitmaps[i + 1]);
-    }
-    RDTSC_FINAL(cycles_final);
-    data[9] = cycles_final - cycles_start;
-
-    RDTSC_START(cycles_start);
-    for (int i = 0; i < (int)count - 1; ++i) {
-        successive_orcard += bitmaps[i].logicalorcount(bitmaps[i + 1]);
-    }
-    RDTSC_FINAL(cycles_final);
-    data[10] = cycles_final - cycles_start;
-
-    RDTSC_START(cycles_start);
-    for (int i = 0; i < (int)count - 1; ++i) {
-        successive_andnotcard += bitmaps[i].logicalandnotcount(bitmaps[i + 1]);
-    }
-    RDTSC_FINAL(cycles_final);
-    data[11] = cycles_final - cycles_start;
-
-    RDTSC_START(cycles_start);
-    for (int i = 0; i < (int)count - 1; ++i) {
-        successive_xorcard += bitmaps[i].logicalxorcount(bitmaps[i + 1]);
-    }
-    RDTSC_FINAL(cycles_final);
-    data[12] = cycles_final - cycles_start;
-
-    assert(successive_andcard == successive_and);
-    assert(successive_xorcard == successive_xor);
-    assert(successive_andnotcard == successive_andnot);
-    assert(successive_orcard == successive_or);
-
-    /**
-    * end and, or, andnot and xor cardinality
-    */
-
-    printf(" %20.2f %20.2f %20.2f %20.2f %20.2f %20.2f  %20.2f  %20.2f     %20.2f    %20.2f  %20.2f  %20.2f  %20.2f\n",
-      data[0]*8.0/totalcard,
-      data[1]*1.0/successivecard,
-      data[2]*1.0/successivecard,
-      data[3]*1.0/totalcard,
-      data[4]*1.0/totalcard,
-      data[5]*1.0/(3*count),
-      data[6]*1.0/successivecard,
-      data[7]*1.0/successivecard,
-      data[8]*1.0/totalcard,
-      data[9]*1.0/successivecard,
-      data[10]*1.0/successivecard,
-      data[11]*1.0/successivecard,
-      data[12]*1.0/successivecard
-    );
     for (int i = 0; i < (int)count; ++i) {
         free(numbers[i]);
         numbers[i] = NULL;  // paranoid
