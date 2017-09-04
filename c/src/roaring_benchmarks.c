@@ -54,6 +54,9 @@ int main(int argc, char **argv) {
     int c;
     bool runoptimize = true;
     bool verbose = false;
+    uint64_t successive_and = 0;
+    uint64_t successive_or = 0;
+    uint64_t total_or = 0;
 
     bool copyonwrite = false;
     char *extension = ".txt";
@@ -111,7 +114,6 @@ int main(int argc, char **argv) {
     for (size_t i = 1; i < count; i++) {
         successivecard += howmany[i-1] + howmany[i];
     }
-    uint64_t cycles_start = 0, cycles_final = 0;
 
     uint64_t totalsize = 0;
     roaring_bitmap_t **bitmaps = create_all_bitmaps(howmany, numbers, count,runoptimize,copyonwrite, verbose, &totalsize);
@@ -128,7 +130,7 @@ int main(int argc, char **argv) {
     }
 
     gettimeofday(&et,NULL);
-    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
 
     printf("Successive intersections took %d mus\n", elapsed);
 
@@ -140,7 +142,7 @@ int main(int argc, char **argv) {
         roaring_bitmap_free(tempor);
     }
     gettimeofday(&et,NULL);
-    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
 
     printf("Successive unions took %d mus\n", elapsed);
 
@@ -149,7 +151,7 @@ int main(int argc, char **argv) {
     total_or = roaring_bitmap_get_cardinality(totalorbitmap);
     roaring_bitmap_free(totalorbitmap);
     gettimeofday(&et,NULL);
-    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
     printf("Total unions took %d mus\n", elapsed);
 
 

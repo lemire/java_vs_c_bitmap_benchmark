@@ -50,6 +50,10 @@ static void printusage(char *command) {
 
 int main(int argc, char **argv) {
     int c;
+    uint64_t successive_and = 0;
+    uint64_t successive_or = 0;
+    uint64_t total_or = 0;
+
     const char *extension = ".txt";
     bool verbose = false;
     while ((c = getopt(argc, argv, "ve:h")) != -1) switch (c) {
@@ -116,7 +120,7 @@ int main(int argc, char **argv) {
         successive_and += tempand.numberOfOnes();
     }
     gettimeofday(&et,NULL);
-    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
     printf("Successive intersections took %d mus\n", elapsed);
 
     gettimeofday(&st,NULL);
@@ -126,7 +130,7 @@ int main(int argc, char **argv) {
         successive_or += tempor.numberOfOnes();
     }
     gettimeofday(&et,NULL);
-    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
 
     printf("Successive unions took %d mus\n", elapsed);
 
@@ -142,7 +146,7 @@ int main(int argc, char **argv) {
         total_or = totalorbitmap.numberOfOnes();
     }
     gettimeofday(&et,NULL);
-    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec)
+    elapsed = ((et.tv_sec - st.tv_sec) * 1000000) + (et.tv_usec - st.tv_usec);
     printf("Total unions took %d mus\n", elapsed);
 
     for (int i = 0; i < (int)count; ++i) {
