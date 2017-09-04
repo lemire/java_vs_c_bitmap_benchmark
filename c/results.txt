@@ -1,0 +1,89 @@
+./scripts/all.sh
+# processing file  census-income
+# roaring_benchmarks
+Successive intersections took 943 mus
+Successive unions took 1093 mus
+Total unions took 104 mus
+# ewah32_benchmarks
+Successive intersections took 5274 mus
+Successive unions took 6923 mus
+Total unions took 934 mus
+
+
+# processing file  census-income_srt
+# roaring_benchmarks
+Successive intersections took 592 mus
+Successive unions took 1076 mus
+Total unions took 198 mus
+# ewah32_benchmarks
+Successive intersections took 890 mus
+Successive unions took 1623 mus
+Total unions took 262 mus
+
+
+# processing file  census1881
+# roaring_benchmarks
+Successive intersections took 72 mus
+Successive unions took 668 mus
+Total unions took 752 mus
+# ewah32_benchmarks
+Successive intersections took 1919 mus
+Successive unions took 12840 mus
+Total unions took 78126 mus
+
+
+# processing file  census1881_srt
+# roaring_benchmarks
+Successive intersections took 56 mus
+Successive unions took 448 mus
+Total unions took 657 mus
+# ewah32_benchmarks
+Successive intersections took 177 mus
+Successive unions took 831 mus
+Total unions took 33435 mus
+
+
+# processing file  weather_sept_85
+# roaring_benchmarks
+Successive intersections took 2952 mus
+Successive unions took 4254 mus
+Total unions took 598 mus
+# ewah32_benchmarks
+Successive intersections took 18569 mus
+Successive unions took 27644 mus
+Total unions took 8380 mus
+
+
+# processing file  weather_sept_85_srt
+# roaring_benchmarks
+Successive intersections took 801 mus
+Successive unions took 1616 mus
+Total unions took 193 mus
+# ewah32_benchmarks
+Successive intersections took 1577 mus
+Successive unions took 3757 mus
+Total unions took 1430 mus
+
+
+# processing file  wikileaks-noquotes
+# roaring_benchmarks
+Successive intersections took 246 mus
+Successive unions took 642 mus
+Total unions took 243 mus
+# ewah32_benchmarks
+Successive intersections took 425 mus
+Successive unions took 1307 mus
+Total unions took 25330 mus
+
+
+# processing file  wikileaks-noquotes_srt
+# roaring_benchmarks
+Successive intersections took 113 mus
+Successive unions took 383 mus
+Total unions took 160 mus
+# ewah32_benchmarks
+Successive intersections took 116 mus
+Successive unions took 359 mus
+Total unions took 9581 mus
+
+

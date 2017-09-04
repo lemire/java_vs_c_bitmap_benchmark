@@ -15,3 +15,10 @@ cd java
 ./run.sh
 ```
 
+To run the C benchmark:
+
+```
+cd c
+make 
+make test
+```
