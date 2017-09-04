@@ -1,1 +1,1 @@
-mvn install &&  java -jar target/benchmarks.jar  -wi 3 -i 3 -f 1 runcontainer
+mvn install &&  java -jar target/benchmarks.jar  -wi 5 -i 3 -f 1 runcontainer
