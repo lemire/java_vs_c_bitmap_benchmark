@@ -83,12 +83,13 @@ public class RunContainerRealDataBenchmarkWideOrNaive {
 
     @State(Scope.Benchmark)
     public static class BenchmarkState {
-        @Param ({// putting the data sets in alpha. order
+        /*@Param ({// putting the data sets in alpha. order
             "census-income", "census1881",
             "weather_sept_85", "wikileaks-noquotes",
             "census-income_srt","census1881_srt",
             "weather_sept_85_srt","wikileaks-noquotes_srt"
-        })
+        })*/
+        @Param ({"census1881"})
         String dataset;
 
         int horizontalor = 0;
